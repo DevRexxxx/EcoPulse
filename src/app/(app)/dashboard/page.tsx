@@ -14,6 +14,8 @@ const CarbonGraph = dynamic(() => import('@/components/dashboard/CarbonGraph'), 
   loading: () => <div className="spinner" style={{ margin: 'auto', marginTop: '40px' }} />
 });
 
+import ConnectedDevicesWidget from '@/components/dashboard/ConnectedDevicesWidget';
+
 // ==========================================
 // Sector Grid Leaderboard Data (Mock)
 // ==========================================
@@ -136,6 +138,17 @@ export default function DashboardPage() {
             <span className="cc-meta-text">vs. previous cycle</span>
           </div>
         </div>
+      </motion.div>
+
+      {/* ========== CONNECTED DEVICES WIDGET ========== */}
+      <motion.div
+        custom={1}
+        initial="hidden"
+        animate="visible"
+        variants={cardVariants}
+        style={{ gridColumn: 'span 12' }}
+      >
+        <ConnectedDevicesWidget />
       </motion.div>
 
       {/* ========== SECTOR GRID — Leaderboard ========== */}

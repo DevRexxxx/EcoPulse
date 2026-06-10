@@ -28,6 +28,12 @@ interface UserState {
 
   // Reports
   pendingReport: PendingReport | null;
+  
+  // Emergency
+  lastEmergencyDate: string | null;
+
+  // Connected Devices
+  hasConnectedDevice: boolean;
 
   // Actions
   setUser: (user: UserProfile | null) => void;
@@ -37,6 +43,8 @@ interface UserState {
   addEcoPoints: (delta: number) => void;
   setLoading: (loading: boolean) => void;
   setPendingReport: (report: PendingReport | null) => void;
+  setLastEmergencyDate: (date: string | null) => void;
+  setHasConnectedDevice: (hasDevice: boolean) => void;
   reset: () => void;
 }
 
@@ -54,6 +62,8 @@ export const useUserStore = create<UserState>((set) => ({
   streak: initialStreak,
   ecoPoints: 0,
   pendingReport: null,
+  lastEmergencyDate: null,
+  hasConnectedDevice: false,
 
   setUser: (user) =>
     set({
@@ -75,6 +85,10 @@ export const useUserStore = create<UserState>((set) => ({
 
   setPendingReport: (report) => set({ pendingReport: report }),
 
+  setLastEmergencyDate: (date) => set({ lastEmergencyDate: date }),
+
+  setHasConnectedDevice: (hasDevice) => set({ hasConnectedDevice: hasDevice }),
+
   reset: () =>
     set({
       user: null,
@@ -84,5 +98,7 @@ export const useUserStore = create<UserState>((set) => ({
       streak: initialStreak,
       ecoPoints: 0,
       pendingReport: null,
+      lastEmergencyDate: null,
+      hasConnectedDevice: false,
     }),
 }));
