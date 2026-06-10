@@ -50,13 +50,16 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Emergency Button */}
+      {/* Emergency Button & Footer */}
       <div className="cc-sidebar-footer">
         <button className="cc-emergency-btn">
           <span className="cc-emergency-pulse" />
           <span>⚠</span>
           <span>Emergency Protocols</span>
         </button>
+        <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+          Version 3.0 @2026
+        </div>
       </div>
 
       <style jsx>{`

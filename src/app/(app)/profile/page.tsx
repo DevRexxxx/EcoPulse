@@ -1,37 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/store/userStore';
 import { getUserStats, getUserBadges, deleteUserAccount } from '@/lib/firestore';
 import { signOut } from '@/lib/auth';
 import { BADGES_CATALOG } from '@/lib/mock/rewardsData';
-import type { UserStats, UserBadge } from '@/types';
+import { useQuery } from '@tanstack/react-query';
 
 export default function ProfilePage() {
   const { user, ecoPoints, streak, baseline, reset } = useUserStore();
   const router = useRouter();
-  const [stats, setStats] = useState<UserStats | null>(null);
-  const [earnedBadges, setEarnedBadges] = useState<UserBadge[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      loadProfileData();
-    }
-  }, [user]);
+  // Use React Query to auto-refetch data when returning to the page
+  const { data: profileData } = useQuery({
+    queryKey: ['profile', user?.uid],
+    queryFn: async () => {
+      if (!user) return null;
+      const [stats, badges] = await Promise.all([
+        getUserStats(user.uid),
+        getUserBadges(user.uid),
+      ]);
+      return { stats, badges };
+    },
+    enabled: !!user,
+  });
 
-  const loadProfileData = async () => {
-    if (!user) return;
-    const [userStats, badges] = await Promise.all([
-      getUserStats(user.uid),
-      getUserBadges(user.uid),
-    ]);
-    setStats(userStats);
-    setEarnedBadges(badges);
-  };
+  const stats = profileData?.stats;
+  const earnedBadges = profileData?.badges || [];
 
   const handleDeleteAccount = async () => {
     if (!user) return;

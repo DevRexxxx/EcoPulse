@@ -198,6 +198,20 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
+
+      {/* Copyright Footer */}
+      <footer style={{
+        position: 'absolute',
+        bottom: '20px',
+        width: '100%',
+        textAlign: 'center',
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: '14px',
+        fontFamily: 'sans-serif',
+        letterSpacing: '0.5px'
+      }}>
+        © 2026 Eshaan Singh Deo | All Rights Reserved
+      </footer>
     </div>
   );
 }

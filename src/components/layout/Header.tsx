@@ -3,6 +3,7 @@
 import { useUserStore } from '@/store/userStore';
 import { signOut } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Header() {
   const { user } = useUserStore();
@@ -33,7 +34,9 @@ export default function Header() {
             <span className="cc-icon-dot" />
           </button>
           <button className="cc-icon-btn" title="Sensors">◈</button>
-          <button className="cc-icon-btn" title="Network">◎</button>
+          <Link href="/network">
+            <button className="cc-icon-btn" title="Network" style={{ cursor: 'pointer' }}>◎</button>
+          </Link>
           <button className="cc-icon-btn cc-logout" onClick={handleSignOut} title="Sign out">⏻</button>
         </div>
       </div>

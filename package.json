@@ -16,7 +16,9 @@
     "zustand": "^5.0.0",
     "@tanstack/react-query": "^5.50.0",
     "recharts": "^2.12.0",
-    "framer-motion": "^11.0.0"
+    "framer-motion": "^11.0.0",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -24,6 +26,7 @@
     "@types/react-dom": "^18.3.0",
     "typescript": "^5.5.0",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.0"
+    "eslint-config-next": "^14.2.0",
+    "@types/leaflet": "^1.9.8"
   }
 }

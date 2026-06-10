@@ -4,9 +4,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/store/userStore';
 import { generateSuggestions } from '@/lib/mock/actionEngine';
-import { awardPoints } from '@/lib/firestore';
-import AIVerificationModal from '@/components/verify/AIVerificationModal';
+import { awardPoints, logCompletedAction } from '@/lib/firestore';
+import dynamic from 'next/dynamic';
 import type { ActionSuggestion } from '@/types';
+
+// Lazy load the heavy AI camera modal to drastically reduce initial JS bundle size
+const AIVerificationModal = dynamic(() => import('@/components/verify/AIVerificationModal'), {
+  ssr: false
+});
 
 const CATEGORY_ICONS: Record<string, string> = {
   mobility: '🚗',
@@ -43,7 +48,7 @@ export default function ActionsPage() {
     if (!user || completedIds.has(suggestion.id)) return;
 
     try {
-      await awardPoints(user.uid, suggestion.ecoPoints, `Completed: ${suggestion.suggestion}`);
+      await logCompletedAction(user.uid, suggestion.suggestion, suggestion.co2SavedKg, suggestion.ecoPoints);
       addEcoPoints(suggestion.ecoPoints);
       setCompletedIds((prev) => new Set(prev).add(suggestion.id));
       setToast(`+${suggestion.ecoPoints} EcoPoints earned! 🎉`);
@@ -61,7 +66,7 @@ export default function ActionsPage() {
   const handleClaimVerifiedPoints = async (points: number, co2: number) => {
     if (!user) return;
     try {
-      await awardPoints(user.uid, points, `AI Verified Action — ${co2.toFixed(2)} kg CO₂ saved`);
+      await logCompletedAction(user.uid, 'AI Verified Action', co2, points);
       addEcoPoints(points);
       setToast(`🔬 Verified! +${points} EcoPoints & ${co2.toFixed(2)} kg CO₂ saved!`);
       setTimeout(() => setToast(null), 4000);

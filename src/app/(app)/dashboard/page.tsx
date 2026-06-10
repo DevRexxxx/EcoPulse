@@ -2,20 +2,27 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { useUserStore } from '@/store/userStore';
 import { getEmissionsHistory } from '@/lib/firestore';
-import CarbonGraph from '@/components/dashboard/CarbonGraph';
+import dynamic from 'next/dynamic';
 import type { EmissionDataPoint } from '@/types';
+
+// Lazy load heavy charting libraries to optimize initial page load speed
+const CarbonGraph = dynamic(() => import('@/components/dashboard/CarbonGraph'), { 
+  ssr: false,
+  loading: () => <div className="spinner" style={{ margin: 'auto', marginTop: '40px' }} />
+});
 
 // ==========================================
 // Sector Grid Leaderboard Data (Mock)
 // ==========================================
 const SECTOR_GRID = [
-  { rank: 1, name: 'Nexus Relay', credits: '28,410 CR', delta: '+12.4%' },
-  { rank: 2, name: 'Carbon Shield HQ', credits: '22,090 CR', delta: '+8.7%' },
-  { rank: 3, name: 'Verdant Node', credits: '19,750 CR', delta: '+5.2%' },
-  { rank: 4, name: 'Operator Terminal (You)', credits: '14,050 CR', delta: '+3.8%', isUser: true },
-  { rank: 5, name: 'Echo Sector', credits: '11,200 CR', delta: '+1.1%' },
+  { rank: 1, name: 'Mumbai Metro', credits: '28,410 CR', delta: '+12.4%' },
+  { rank: 2, name: 'Delhi NCR Grid', credits: '22,090 CR', delta: '+8.7%' },
+  { rank: 3, name: 'Bengaluru Tech Node', credits: '19,750 CR', delta: '+5.2%' },
+  { rank: 4, name: 'Your Local Node (You)', credits: '14,050 CR', delta: '+3.8%', isUser: true },
+  { rank: 5, name: 'Chennai Core', credits: '11,200 CR', delta: '+1.1%' },
 ];
 
 // ==========================================
@@ -83,7 +90,7 @@ const cardVariants = {
 // Dashboard Page
 // ==========================================
 export default function DashboardPage() {
-  const { user, ecoPoints, streak } = useUserStore();
+  const { user, streak } = useUserStore();
   const [chartData, setChartData] = useState<EmissionDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -209,7 +216,7 @@ export default function DashboardPage() {
         <div className="cc-stat-meta">Personal best: 156 Cycles</div>
       </motion.div>
 
-      {/* ========== DIAGNOSTICS FOOTER ========== */}
+      {/* ========== HOW IT WORKS FOOTER ========== */}
       <motion.div
         className="cc-bento-card cc-diag-card"
         custom={4}
@@ -218,15 +225,18 @@ export default function DashboardPage() {
         variants={cardVariants}
       >
         <div className="cc-diag-left">
-          <div className="cc-card-label">SYSTEM DIAGNOSTICS</div>
+          <div className="cc-card-label">HOW ECOPULSE WORKS</div>
           <p className="cc-diag-text">
-            All subsystems nominal. Emission sensors calibrated. Carbon offset pipeline active.
-            Last full sweep: <span className="cc-diag-highlight">2.4 hours ago</span>.
+            EcoPulse uses Gemini AI to visually verify your sustainable actions. Complete eco-tasks, upload your proof, and watch your carbon mitigation metrics update <span className="cc-diag-highlight">in real-time</span>.
           </p>
         </div>
         <div className="cc-diag-right">
-          <button className="cc-btn-muted">View Logs</button>
-          <button className="cc-btn-glow">Run Scan</button>
+          <Link href="/leaderboard" className="cc-btn-muted" style={{ textDecoration: 'none' }}>
+            Leaderboard
+          </Link>
+          <Link href="/actions" className="cc-btn-glow" style={{ textDecoration: 'none' }}>
+            View Actions
+          </Link>
         </div>
       </motion.div>
 

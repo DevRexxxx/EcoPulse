@@ -275,24 +275,51 @@ export async function awardBadge(uid: string, badgeId: string) {
 }
 
 // ==========================================
+// Actions
+// ==========================================
+
+export async function logCompletedAction(uid: string, description: string, co2SavedKg: number, points: number) {
+  await addDoc(collection(db, 'users', uid, 'actions'), {
+    userId: uid,
+    description,
+    co2SavedKg,
+    points,
+    completedAt: new Date().toISOString(),
+  });
+  
+  await awardPoints(uid, points, `Completed Action: ${description}`);
+  await updateStreak(uid);
+}
+
+// ==========================================
 // User Stats (Aggregated)
 // ==========================================
 
 export async function getUserStats(uid: string): Promise<UserStats> {
-  const [trips, points, streak, badges] = await Promise.all([
+  const [trips, actions, points, streak, badges] = await Promise.all([
     getDocs(collection(db, 'users', uid, 'trips')),
+    getDocs(collection(db, 'users', uid, 'actions')),
     getTotalPoints(uid),
     getStreak(uid),
     getUserBadges(uid),
   ]);
 
   let totalCo2 = 0;
+  
+  // Aggregate CO2 saved from trips
   trips.docs.forEach((d) => {
     const trip = d.data() as Trip;
-    // CO2 "saved" = baseline car emissions minus actual emissions
     const carEquivalent = trip.distanceKm * 0.21;
     const saved = carEquivalent - trip.co2eKg;
     if (saved > 0) totalCo2 += saved;
+  });
+
+  // Aggregate CO2 saved from actions
+  actions.docs.forEach((d) => {
+    const actionData = d.data();
+    if (actionData.co2SavedKg) {
+      totalCo2 += actionData.co2SavedKg;
+    }
   });
 
   return {
@@ -301,7 +328,7 @@ export async function getUserStats(uid: string): Promise<UserStats> {
     currentStreak: streak.currentStreak,
     longestStreak: streak.longestStreak,
     tripsLogged: trips.size,
-    actionsCompleted: 0, // TODO: track separately
+    actionsCompleted: actions.size,
     badgesEarned: badges.length,
   };
 }

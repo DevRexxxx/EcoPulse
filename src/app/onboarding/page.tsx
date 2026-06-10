@@ -77,7 +77,7 @@ export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-  const { user, isAuthenticated, isLoading } = useUserStore();
+  const { user, isAuthenticated, isLoading, setUser } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -112,6 +112,7 @@ export default function OnboardingPage() {
         };
         if (user) {
           await saveBaseline(user.uid, baseline);
+          setUser({ ...user, onboardingComplete: true });
         }
         router.push('/dashboard');
       } catch (err) {
