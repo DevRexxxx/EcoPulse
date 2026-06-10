@@ -29,15 +29,15 @@ Existing carbon tracking applications fail because:
 
 **EcoPulse** solves these issues through real-time AI computer vision and deep gamification.
 
-## 🚀 What's New in Version 4.0
+## 🚀 What's New in Version 5.0
 
-Version 4.0 is a massive architectural and visual overhaul of the platform:
-- **Cinematic Command Center:** Replaced the generic dashboard with a sci-fi inspired "Operator Terminal" featuring live network rankings and real-time telemetry.
-- **AI "Proof of Action" Scanner:** A new live viewfinder that captures images, compresses them client-side, and utilizes Gemini 2.0 Flash to verify eco-friendly actions (transit, recycling, meals) with high confidence.
-- **Automated Point Economy:** The Action feed now connects directly to the Firestore database. Completing actions or getting an AI scan approved now instantly updates your CO₂ mitigation and trips logged in real-time.
-- **Zero-Latency Data Layer:** Transitioned from a heavy REST API backend to direct, client-side Firebase SDKs, allowing for 0ms optimistic UI updates.
+Version 5.0 brings major enhancements to tracking automation, visual polish, and core environmental workflows:
+- **Hybrid AI Scanner & Action Database:** Replaced the generic search with an intelligent dropdown that provides instant carbon cost insights for everyday actions, directly hitting the "understanding" aspect of the problem statement.
+- **Automated IoT Network Scanning:** A new interactive demo sequence that simulates scanning the user's local network, syncing smart home devices (like Nest Thermostats), and pulling their live data into the dashboard.
+- **Connected Devices Dashboard Integration:** A sleek, animated widget on the main dashboard that dynamically lights up and begins displaying live energy draw the moment a smart device is synced.
+- **Emergency Protocols Cooldown Engine:** Upgraded the command center with a robust timestamp-based visual cooldown logic, preventing spamming of high-value actions and adding a layer of realism to the gamification economy.
 
-### 🔥 4.0 Recent Architecture Upgrades
+### 🔥 5.0 Recent Architecture Upgrades
 - **Dedicated Report Dashboard:** A beautifully styled, dynamic `/actions/report` dashboard that acts as the final screen for both Accepted AND Rejected AI scans. Shows exactly why an action was verified or denied.
 - **Native PDF Generation:** Built-in ability to instantly download the official cryptographic proof and terminal analysis as an A4 PDF document without relying on heavy third-party libraries.
 - **Gemini 2.5 Flash Transition & Round-Robin Load Balancing:** Optimized the API configuration to use the cutting-edge `gemini-2.5-flash` model. The integration natively parses environment variables to seamlessly load-balance requests across multiple API keys, catching rate limits and broken keys, and instantly failing over to backup keys.
