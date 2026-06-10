@@ -29,15 +29,15 @@ Existing carbon tracking applications fail because:
 
 **EcoPulse** solves these issues through real-time AI computer vision and deep gamification.
 
-## 🚀 What's New in Version 3.0
+## 🚀 What's New in Version 4.0
 
-Version 3.0 is a massive architectural and visual overhaul of the platform:
+Version 4.0 is a massive architectural and visual overhaul of the platform:
 - **Cinematic Command Center:** Replaced the generic dashboard with a sci-fi inspired "Operator Terminal" featuring live network rankings and real-time telemetry.
 - **AI "Proof of Action" Scanner:** A new live viewfinder that captures images, compresses them client-side, and utilizes Gemini 2.0 Flash to verify eco-friendly actions (transit, recycling, meals) with high confidence.
 - **Automated Point Economy:** The Action feed now connects directly to the Firestore database. Completing actions or getting an AI scan approved now instantly updates your CO₂ mitigation and trips logged in real-time.
 - **Zero-Latency Data Layer:** Transitioned from a heavy REST API backend to direct, client-side Firebase SDKs, allowing for 0ms optimistic UI updates.
 
-### 🔥 3.1 Recent Architecture Upgrades
+### 🔥 4.0 Recent Architecture Upgrades
 - **Dedicated Report Dashboard:** A beautifully styled, dynamic `/actions/report` dashboard that acts as the final screen for both Accepted AND Rejected AI scans. Shows exactly why an action was verified or denied.
 - **Native PDF Generation:** Built-in ability to instantly download the official cryptographic proof and terminal analysis as an A4 PDF document without relying on heavy third-party libraries.
 - **Gemini 2.5 Flash Transition & Round-Robin Load Balancing:** Optimized the API configuration to use the cutting-edge `gemini-2.5-flash` model. The integration natively parses environment variables to seamlessly load-balance requests across multiple API keys, catching rate limits and broken keys, and instantly failing over to backup keys.

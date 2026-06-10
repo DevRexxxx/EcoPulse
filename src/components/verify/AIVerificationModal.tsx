@@ -26,7 +26,7 @@ interface AIVerificationModalProps {
 // Telemetry Logs
 // ==========================================
 const TELEMETRY_LOGS = [
-  '> SYSTEM::INIT — Booting vision agent v3.7.1...',
+  '> SYSTEM::INIT — Booting vision agent v4.0.0...',
   '> AGENT::LOAD — Multimodal classifier online.',
   '> SENSOR::CAM — Frame captured. Resolution: 640x480.',
   '> PIPE::ENCODE — Base64 payload encoded. Size: 42KB.',

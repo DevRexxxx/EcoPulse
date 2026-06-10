@@ -57,8 +57,17 @@ export default function Sidebar() {
           <span>⚠</span>
           <span>Emergency Protocols</span>
         </button>
-        <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-          Version 3.0 @2026
+        <div style={{ 
+          marginTop: '20px', 
+          textAlign: 'center', 
+          fontSize: '14px', 
+          color: '#00ffc8', 
+          fontFamily: 'var(--font-display)', 
+          fontWeight: 800,
+          letterSpacing: '0.1em',
+          textShadow: '0 0 10px rgba(0,255,200,0.3)'
+        }}>
+          VERSION 4.0
         </div>
       </div>
 
