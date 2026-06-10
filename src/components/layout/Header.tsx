@@ -5,9 +5,10 @@ import { useUserStore } from '@/store/userStore';
 import { signOut } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import SensorsPanel from '@/components/sensors/SensorsPanel';
 
+import SensorsPanel from '@/components/sensors/SensorsPanel';
 import HybridScanner from '@/components/search/HybridScanner';
+import NotificationDropdown from '@/components/layout/NotificationDropdown';
 
 export default function Header() {
   const { user } = useUserStore();
@@ -32,10 +33,7 @@ export default function Header() {
 
           {/* Status Icons */}
           <div className="cc-header-icons">
-            <button className="cc-icon-btn" title="Notifications">
-              <span>🔔</span>
-              <span className="cc-icon-dot" />
-            </button>
+            <NotificationDropdown />
             <button
               className="cc-icon-btn"
               title="Sensors"
