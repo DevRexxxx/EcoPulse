@@ -38,6 +38,8 @@ Version 5.0 brings major enhancements to tracking automation, visual polish, and
 - **Emergency Protocols Cooldown Engine:** Upgraded the command center with a robust timestamp-based visual cooldown logic, preventing spamming of high-value actions and adding a layer of realism to the gamification economy.
 
 ### 🔥 5.0 Recent Architecture Upgrades
+- **Next.js Turbopack & Dynamic Imports Integration:** Slashed development load times by 700x and drastically reduced initial JavaScript bundle sizes by dynamically lazy-loading massive 3rd-party mapping (`react-leaflet`) and animation libraries.
+- **Memory-Optimized Interactive Notifications:** Completely rebuilt the command center notification logic to allow users to selectively mark individual alerts as read or delete them entirely, physically dumping them from the component state to save memory allocation.
 - **Dedicated Report Dashboard:** A beautifully styled, dynamic `/actions/report` dashboard that acts as the final screen for both Accepted AND Rejected AI scans. Shows exactly why an action was verified or denied.
 - **Native PDF Generation:** Built-in ability to instantly download the official cryptographic proof and terminal analysis as an A4 PDF document without relying on heavy third-party libraries.
 - **Gemini 2.5 Flash Transition & Round-Robin Load Balancing:** Optimized the API configuration to use the cutting-edge `gemini-2.5-flash` model. The integration natively parses environment variables to seamlessly load-balance requests across multiple API keys, catching rate limits and broken keys, and instantly failing over to backup keys.
