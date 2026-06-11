@@ -8,20 +8,36 @@ import { logCompletedAction } from '@/lib/firestore';
 
 export default function ReportPage() {
   const router = useRouter();
-  const { user, pendingReport, setPendingReport, addEcoPoints } = useUserStore();
+  const { user, pendingReport: storeReport, setPendingReport, addEcoPoints } = useUserStore();
   const [claiming, setClaiming] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [report, setReport] = useState<any>(null);
 
   useEffect(() => {
-    // If no report exists in state, they shouldn't be on this page
-    if (!pendingReport) {
+    // If we have a store report, use it
+    if (storeReport) {
+      setReport(storeReport);
+      return;
+    }
+
+    // Otherwise try to recover from sessionStorage (fixes hard reload data loss)
+    const storedStr = sessionStorage.getItem('pendingReport');
+    if (storedStr) {
+      try {
+        const parsed = JSON.parse(storedStr);
+        setReport(parsed);
+        setPendingReport(parsed); // Restore to store
+      } catch (e) {
+        router.push('/actions');
+      }
+    } else {
       router.push('/actions');
     }
-  }, [pendingReport, router]);
+  }, [storeReport, router, setPendingReport]);
 
-  if (!pendingReport) return null;
+  if (!report) return null;
 
-  const { actionType, capturedFrame, result } = pendingReport;
+  const { actionType, capturedFrame, result } = report;
 
   const handleClaim = async () => {
     if (!user || claiming) return;
@@ -102,7 +118,7 @@ export default function ReportPage() {
           </div>
           <div class="image-container">
             <h3 style="color:#444; margin-bottom:15px;">Cryptographic Proof of Action</h3>
-            <img src="${capturedFrame}" class="proof-img" />
+            <img src="${capturedFrame}" class="proof-img" alt="Captured cryptographic proof of environmental action" />
           </div>
           <div class="footer">
             This report was generated securely and autonomously by the EcoPulse Generative AI Engine.<br/>
@@ -135,14 +151,15 @@ export default function ReportPage() {
           </p>
         </div>
 
-        <div className="cc-bento-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        <div className="cc-bento-grid" style={{ gridTemplateColumns: '1fr 1fr' }} role="region" aria-label="Verification Results Overview">
           
           {/* Left Column: Proof Image */}
           <div className="cc-bento-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(0,255,200,0.2)' }}>
             <h3 style={{ color: 'rgba(255,255,255,0.8)', marginBottom: 15, fontSize: '0.9rem', letterSpacing: '0.1em' }}>CRYPTOGRAPHIC PROOF</h3>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={capturedFrame} 
-              alt="Verification Proof" 
+              alt="Snapshot of the environmental action used for AI verification" 
               style={{ width: '100%', borderRadius: '8px', border: '2px solid rgba(0,255,200,0.3)', boxShadow: '0 0 20px rgba(0,255,200,0.1)' }} 
             />
           </div>
@@ -153,24 +170,24 @@ export default function ReportPage() {
               <div style={{ color: result.action_verified ? '#00ffc8' : '#ff4a4a', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: 5 }}>
                 {result.action_verified ? 'ECOPOINTS AWARDED' : 'ECOPOINTS DENIED'}
               </div>
-              <div style={{ fontSize: '3rem', fontWeight: 800, color: '#fff', textShadow: result.action_verified ? '0 0 15px rgba(0,255,200,0.4)' : 'none' }}>
-                {result.action_verified ? result.eco_points : 0} <span style={{ fontSize: '1.2rem', color: result.action_verified ? '#00ffc8' : '#888' }}>EP</span>
+              <div style={{ fontSize: '3rem', fontWeight: 800, color: '#fff', textShadow: result.action_verified ? '0 0 15px rgba(0,255,200,0.4)' : 'none' }} aria-label={`${result.eco_points} EcoPoints`}>
+                {result.action_verified ? result.eco_points : 0} <span style={{ fontSize: '1.2rem', color: result.action_verified ? '#00ffc8' : '#888' }} aria-hidden="true">EP</span>
               </div>
             </div>
 
             <div className="cc-bento-card" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
               <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: 5 }}>CO₂ MITIGATED</div>
-              <div style={{ fontSize: '2rem', fontWeight: 700, color: result.action_verified ? '#00ffc8' : '#888' }}>
-                {result.action_verified ? result.co2_delta_kg.toFixed(2) : '0.00'} <span style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.6)' }}>kg</span>
+              <div style={{ fontSize: '2rem', fontWeight: 700, color: result.action_verified ? '#00ffc8' : '#888' }} aria-label={`${result.co2_delta_kg.toFixed(2)} kilograms`}>
+                {result.action_verified ? result.co2_delta_kg.toFixed(2) : '0.00'} <span style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.6)' }} aria-hidden="true">kg</span>
               </div>
             </div>
 
             <div className="cc-bento-card" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
               <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: 5 }}>AI CONFIDENCE</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#fff' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#fff' }} aria-label={`${(result.confidence_score * 100).toFixed(1)} percent`}>
                 {(result.confidence_score * 100).toFixed(1)}%
               </div>
-              <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', marginTop: '8px', borderRadius: '2px' }}>
+              <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', marginTop: '8px', borderRadius: '2px' }} role="progressbar" aria-valuenow={result.confidence_score * 100} aria-valuemin={0} aria-valuemax={100}>
                 <div style={{ width: `${result.confidence_score * 100}%`, height: '100%', background: result.action_verified ? '#00ffc8' : '#ff4a4a', borderRadius: '2px' }}></div>
               </div>
             </div>
@@ -179,10 +196,10 @@ export default function ReportPage() {
           {/* Terminal Logs Full Width */}
           <div className="cc-bento-card" style={{ gridColumn: '1 / -1', background: '#0a0a0a', border: '1px solid rgba(0,255,200,0.15)' }}>
             <div style={{ color: '#00ffc8', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span className="spinner" style={{ width: 12, height: 12, borderWidth: 2, borderColor: '#00ffc8', borderTopColor: 'transparent' }} />
+              <span className="spinner" style={{ width: 12, height: 12, borderWidth: 2, borderColor: '#00ffc8', borderTopColor: 'transparent' }} aria-hidden="true" />
               TERMINAL ANALYSIS
             </div>
-            <div style={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+            <div style={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', lineHeight: 1.6 }} aria-live="polite">
               {result.terminal_log}
             </div>
           </div>
@@ -194,6 +211,7 @@ export default function ReportPage() {
             className="btn" 
             onClick={handleDownloadReport}
             style={{ padding: '16px 32px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}
+            aria-label="Download verification report as PDF"
           >
             📄 Download PDF
           </button>

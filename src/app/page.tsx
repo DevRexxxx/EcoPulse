@@ -22,7 +22,7 @@ export default function HomePage() {
         router.push('/dashboard');
       }
     }
-  }, [isAuthenticated, isLoading, user, router]);
+  }, [isAuthenticated, isLoading, user, router, pathname]);
 
   return (
     <div className="loading-screen">

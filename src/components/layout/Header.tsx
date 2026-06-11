@@ -37,16 +37,17 @@ export default function Header() {
             <button
               className="cc-icon-btn"
               title="Sensors"
+              aria-label="Sensors"
               onClick={() => setIsSensorsOpen(true)}
               style={{ position: 'relative' }}
             >
-              ◈
+              <span aria-hidden="true">◈</span>
               <span className="sensors-dot" />
             </button>
             <Link href="/network">
-              <button className="cc-icon-btn" title="Network" style={{ cursor: 'pointer' }}>◎</button>
+              <button className="cc-icon-btn" title="Network" aria-label="Network" style={{ cursor: 'pointer' }}><span aria-hidden="true">◎</span></button>
             </Link>
-            <button className="cc-icon-btn cc-logout" onClick={handleSignOut} title="Sign out">⏻</button>
+            <button className="cc-icon-btn cc-logout" onClick={handleSignOut} title="Sign out" aria-label="Sign out"><span aria-hidden="true">⏻</span></button>
           </div>
         </div>
 

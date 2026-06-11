@@ -51,7 +51,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [reset, setBaseline, setEcoPoints, setLoading, setStreak, setUser]);
 
   return <>{children}</>;
 }

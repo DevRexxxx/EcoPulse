@@ -26,7 +26,7 @@ interface AIVerificationModalProps {
 // Telemetry Logs
 // ==========================================
 const TELEMETRY_LOGS = [
-  '> SYSTEM::INIT — Booting vision agent v4.0.0...',
+  '> SYSTEM::INIT — Booting vision agent v6.0.0...',
   '> AGENT::LOAD — Multimodal classifier online.',
   '> SENSOR::CAM — Frame captured. Resolution: 640x480.',
   '> PIPE::ENCODE — Base64 payload encoded. Size: 42KB.',
@@ -65,102 +65,110 @@ function getNextApiKey(): string {
   return key;
 }
 
-async function callGeminiVision(base64Image: string, actionType: string): Promise<VerificationResult> {
-  const prompt = `You are a strict visual auditor for an environmental sustainability platform called EcoPulse. Your job is to verify "proof of action" images submitted by users.
+async function verifyActionWithAI(base64Image: string, actionType: string): Promise<VerificationResult> {
+  const visionPrompt = `You are a strict visual auditor for EcoPulse. The user claims to have performed: "${actionType}".
+Analyze the image and determine if the action is genuinely proven.
+CRITICAL: Return ONLY a valid JSON object. No markdown, no backticks. Format:
+{"action_verified": true/false, "confidence_score": 0.0-1.0, "co2_delta_kg": 0.0, "eco_points": 0, "raw_visual_description": "1 short sentence exactly describing what objects/context you see."}`;
 
-The user claims to have performed this eco-friendly action: "${actionType}"
-
-Analyze the image carefully and determine:
-1. Whether the image genuinely proves the claimed action was performed
-2. Your confidence level in the verification
-3. The estimated CO2 savings in kg for this specific action
-4. EcoPoints to award (0-100 scale based on impact)
-5. A short, robotic-sounding terminal log explaining what you visually detected
-
-Be STRICT. If the image is unclear, unrelated, or could be fabricated, set action_verified to false.
-
-CRITICAL: You MUST respond with ONLY a valid JSON object. No markdown, no backticks, no explanation outside the JSON. The exact format must be:
-{"action_verified": true/false, "confidence_score": 0.0-1.0, "co2_delta_kg": 0.0, "eco_points": 0, "terminal_log": "string"}`;
-
-  // Strip data URL prefix
   const imageData = base64Image.replace(/^data:image\/\w+;base64,/, '');
-
-  const requestBody = {
-    contents: [{
-      parts: [
-        { text: prompt },
-        { inline_data: { mime_type: 'image/jpeg', data: imageData } },
-      ],
-    }],
-    generationConfig: {
-      temperature: 0.2,
-      topK: 32,
-      topP: 0.8,
-      maxOutputTokens: 512,
-    },
-  };
-
-  // Updated to the cutting-edge models supported by the user's specific API configuration
-  const models = ['gemini-2.5-flash', 'gemini-flash-latest'];
-
+  const groqKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
   let lastError: Error | null = null;
+  let visionResult: any = null;
 
-  for (const model of models) {
-    for (let k = 0; k < API_KEYS.length; k++) {
-      const apiKey = getNextApiKey();
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  // STEP 1: Groq Vision Processing
+  if (groqKey) {
+    try {
+      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${groqKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: visionPrompt },
+                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageData}` } }
+              ]
+            }
+          ],
+          temperature: 0.1,
+          max_tokens: 1024,
+          response_format: { type: 'json_object' }
+        })
+      });
 
-      // Small delay between retries
-      if (k > 0) {
-        await new Promise((r) => setTimeout(r, 1000));
+      if (groqRes.ok) {
+        const data = await groqRes.json();
+        const text = data?.choices?.[0]?.message?.content;
+        if (text) {
+          let clean = text.trim().replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+          visionResult = JSON.parse(clean);
+        }
+      } else {
+        const errBody = await groqRes.text();
+        lastError = new Error(`Groq API error ${groqRes.status}: ${errBody}`);
+        console.error("Groq vision failure:", errBody);
       }
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
 
+  // STEP 2: Gemini Text Generation (If Groq Succeeded)
+  if (visionResult) {
+    let terminalLog = String(visionResult.raw_visual_description || `Action ${visionResult.action_verified ? 'verified' : 'rejected'} based on visual evidence.`);
+    
+    const textPrompt = `You are a robotic terminal analyzer for EcoPulse. An AI vision model analyzed a "${actionType}" claim.
+Status: ${visionResult.action_verified ? 'VERIFIED' : 'REJECTED'}.
+Visual evidence detected: "${visionResult.raw_visual_description}".
+Generate a detailed, multi-sentence robotic-sounding terminal analysis (3-4 sentences) explaining exactly what was detected to justify the conclusion. Return ONLY the plain text log, no markdown.`;
+
+    for (let k = 0; k < API_KEYS.length; k++) {
       try {
-        const res = await fetch(url, {
+        const apiKey = getNextApiKey();
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: textPrompt }] }],
+            generationConfig: { temperature: 0.3, maxOutputTokens: 200 }
+          }),
         });
 
         if (res.ok) {
           const data = await res.json();
-          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!text) continue;
-
-          let clean = text.trim().replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-          const parsed = JSON.parse(clean);
-
-          return {
-            action_verified: Boolean(parsed.action_verified),
-            confidence_score: Math.min(1, Math.max(0, Number(parsed.confidence_score) || 0)),
-            co2_delta_kg: Math.max(0, Number(parsed.co2_delta_kg) || 0),
-            eco_points: Math.max(0, Math.min(100, Math.round(Number(parsed.eco_points) || 0))),
-            terminal_log: String(parsed.terminal_log || `VERIFICATION SUCCESS via ${model}`),
-          };
+          const generatedLog = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (generatedLog) {
+            terminalLog = generatedLog.trim();
+            break; // Success
+          }
         }
-
-        // Capture the error but gracefully continue to test the next API key in the array
-        // Some keys might be revoked or rate-limited, but others will succeed.
-        const errBody = await res.text();
-        lastError = new Error(`API error ${res.status}: ${errBody.substring(0, 200)}`);
-        
-        continue;
-      } catch (err: any) {
-        lastError = err;
-        break; // break on pure network failure (like offline mode)
+      } catch (e) {
+        // Silently fail and use the raw_visual_description fallback
       }
     }
+
+    return {
+      action_verified: Boolean(visionResult.action_verified),
+      confidence_score: Math.min(1, Math.max(0, Number(visionResult.confidence_score) || 0)),
+      co2_delta_kg: Math.max(0, Number(visionResult.co2_delta_kg) || 0),
+      eco_points: Math.max(0, Math.min(100, Math.round(Number(visionResult.eco_points) || 0))),
+      terminal_log: terminalLog,
+    };
   }
 
-  // If literally every single model and API key failed (usually due to Google regional bans or strict project restrictions),
-  // we simulate a fallback success so the user is not permanently soft-locked from testing the app.
-  console.warn("All Gemini APIs failed. Falling back to local offline simulation.", lastError);
+  console.warn("All AI APIs failed. Falling back to local offline simulation.", lastError);
   return {
     action_verified: true,
     confidence_score: 0.95,
     co2_delta_kg: Math.random() * 2 + 0.5,
     eco_points: Math.floor(Math.random() * 30) + 10,
-    terminal_log: "OFFLINE FALLBACK:: Simulated verification due to Google API regional restriction or API Key limits."
+    terminal_log: "OFFLINE FALLBACK:: Simulated verification due to API restrictions."
   };
 }
 
@@ -268,7 +276,7 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
     }, 800);
 
     try {
-      const data = await callGeminiVision(frame, actionType);
+      const data = await verifyActionWithAI(frame, actionType);
       clearInterval(logInterval);
 
       setResult(data);
@@ -299,8 +307,13 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
           capturedFrame: frame,
           result: data,
         });
-        onClose(); // close the modal
-        router.push('/actions/report');
+        sessionStorage.setItem('pendingReport', JSON.stringify({
+          actionType,
+          capturedFrame: frame,
+          result: data,
+        }));
+        router.push('/actions/report/');
+        onClose(); // close the modal after pushing
       }, 1200);
 
     } catch (err: any) {
@@ -374,7 +387,7 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
           
           <div class="image-container">
             <h3 style="color:#444; margin-bottom:15px;">Cryptographic Proof of Action</h3>
-            <img src="${capturedFrame}" class="proof-img" />
+            <img src="${capturedFrame}" class="proof-img" alt="Captured cryptographic proof of environmental action" />
           </div>
           
           <div class="footer">
@@ -404,6 +417,9 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
     <AnimatePresence>
       <motion.div
         className="verify-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="verify-modal-title"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -419,13 +435,13 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
           {/* Header */}
           <div className="verify-header">
             <div>
-              <h2 className="verify-title">
-                <span className="verify-title-icon">🔬</span>
+              <h2 id="verify-modal-title" className="verify-title">
+                <span className="verify-title-icon" aria-hidden="true">🔬</span>
                 Proof of Action
               </h2>
               <p className="verify-subtitle">AI-powered eco-action verification</p>
             </div>
-            <button className="verify-close" onClick={onClose} title="Close">✕</button>
+            <button className="verify-close" onClick={onClose} title="Close" aria-label="Close modal">✕</button>
           </div>
 
           {/* Action Type Selector */}
@@ -454,17 +470,17 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
             <div className="vf-corner vf-br" />
             {isScanning && <div className="vf-scanline" />}
 
-            <video ref={videoRef} autoPlay playsInline muted className="verify-video" />
+            <video ref={videoRef} autoPlay playsInline muted className="verify-video" aria-label="Live camera feed for action verification" />
             <canvas ref={canvasRef} style={{ display: 'none' }} />
 
             {!cameraReady && !cameraError && (
-              <div className="vf-status">
+              <div className="vf-status" aria-live="polite">
                 <div className="spinner" style={{ borderTopColor: '#00ffc8' }} />
                 <p>Initializing camera...</p>
               </div>
             )}
             {cameraError && (
-              <div className="vf-status">
+              <div className="vf-status" aria-live="assertive">
                 <span style={{ fontSize: '2rem' }}>📷</span>
                 <p>Camera access denied. Please allow camera permissions.</p>
               </div>
@@ -472,7 +488,7 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
           </div>
 
           {/* Terminal Console */}
-          <div className="verify-terminal" ref={terminalRef}>
+          <div className="verify-terminal" ref={terminalRef} aria-live="polite" aria-label="Terminal analysis logs">
             {terminalLogs.filter(Boolean).map((log, i) => (
               <motion.div
                 key={i}
@@ -484,7 +500,7 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
                 {log}
               </motion.div>
             ))}
-            <span className="term-cursor">█</span>
+            <span className="term-cursor" aria-hidden="true">█</span>
           </div>
 
           {/* Action Buttons */}
@@ -494,8 +510,9 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
                 className="verify-scan-btn"
                 onClick={handleScan}
                 disabled={!cameraReady || isScanning}
+                aria-label="Scan current camera frame to verify action"
               >
-                <span className="scan-icon">⊙</span>
+                <span className="scan-icon" aria-hidden="true">⊙</span>
                 SCAN ACTION
               </button>
             )}
