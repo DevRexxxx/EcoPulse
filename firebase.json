@@ -26,7 +26,7 @@
           },
           {
             "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://generativelanguage.googleapis.com https://api.groq.com https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com;"
+            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://generativelanguage.googleapis.com https://api.groq.com https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.open-meteo.com https://api.bigdatacloud.net https://api-bdc.io https://*.basemaps.cartocdn.com https://cdnjs.cloudflare.com;"
           }
         ]
       },
