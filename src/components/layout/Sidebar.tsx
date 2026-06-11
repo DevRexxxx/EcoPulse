@@ -80,7 +80,7 @@ export default function Sidebar() {
             letterSpacing: '0.1em',
             textShadow: '0 0 10px rgba(0,255,200,0.3)'
           }}>
-            VERSION 5.0
+            VERSION 6.0
           </div>
         </div>
 
