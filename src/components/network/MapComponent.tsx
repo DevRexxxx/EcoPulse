@@ -110,8 +110,8 @@ export default function MapComponent() {
           position={[city.lat, city.lng]} 
           icon={nodeIcon}
           eventHandlers={{
-            mouseover: (e) => { e.target.openPopup(); },
-            mouseout: (e) => { e.target.closePopup(); }
+            mouseover: (e: any) => { e.target.openPopup(); },
+            mouseout: (e: any) => { e.target.closePopup(); }
           }}
         >
           <Popup className="cc-map-popup" autoPan={false}>
