@@ -40,7 +40,7 @@ export default function CarbonGraph({ data, loading }: CarbonGraphProps) {
         >
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{label}</p>
           <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--green-400)' }}>
-            {payload[0].value.toFixed(2)} kg CO₂
+            {Number(payload[0].value || 0).toFixed(2)} kg CO₂
           </p>
         </div>
       );
