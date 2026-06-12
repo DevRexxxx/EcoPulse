@@ -8,11 +8,11 @@ service cloud.firestore {
       }
     }
     match /leaderboard/{entry} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow write: if false;
     }
     match /rewards/{reward} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow write: if false;
     }
     match /badges_catalog/{badge} {

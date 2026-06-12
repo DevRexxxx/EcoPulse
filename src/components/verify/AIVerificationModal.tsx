@@ -53,123 +53,24 @@ const ACTION_TYPES = [
 ];
 
 // ==========================================
-// Gemini API call (client-side, round-robin keys)
+// API Server Call
 // ==========================================
-const API_KEYS = (process.env.NEXT_PUBLIC_GEMINI_API_KEYS || '').split(',').filter(Boolean);
-let keyIndex = 0; // Persists across calls for true round-robin
-
-function getNextApiKey(): string {
-  if (API_KEYS.length === 0) throw new Error('No Gemini API keys configured');
-  const key = API_KEYS[keyIndex % API_KEYS.length];
-  keyIndex++;
-  return key;
-}
 
 async function verifyActionWithAI(base64Image: string, actionType: string): Promise<VerificationResult> {
-  const visionPrompt = `You are a strict visual auditor for EcoPulse. The user claims to have performed: "${actionType}".
-Analyze the image and determine if the action is genuinely proven.
-CRITICAL: Return ONLY a valid JSON object. No markdown, no backticks. Format:
-{"action_verified": true/false, "confidence_score": 0.0-1.0, "co2_delta_kg": 0.0, "eco_points": 0, "raw_visual_description": "1 short sentence exactly describing what objects/context you see."}`;
+  const res = await fetch('/api/verify-action', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ base64Image, actionType }),
+  });
 
-  const imageData = base64Image.replace(/^data:image\/\w+;base64,/, '');
-  const groqKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
-  let lastError: Error | null = null;
-  let visionResult: any = null;
-
-  // STEP 1: Groq Vision Processing
-  if (groqKey) {
-    try {
-      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${groqKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                { type: 'text', text: visionPrompt },
-                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageData}` } }
-              ]
-            }
-          ],
-          temperature: 0.1,
-          max_tokens: 1024,
-          response_format: { type: 'json_object' }
-        })
-      });
-
-      if (groqRes.ok) {
-        const data = await groqRes.json();
-        const text = data?.choices?.[0]?.message?.content;
-        if (text) {
-          let clean = text.trim().replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-          visionResult = JSON.parse(clean);
-        }
-      } else {
-        const errBody = await groqRes.text();
-        lastError = new Error(`Groq API error ${groqRes.status}: ${errBody}`);
-        console.error("Groq vision failure:", errBody);
-      }
-    } catch (err: any) {
-      lastError = err;
-    }
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP Error ${res.status}`);
   }
 
-  // STEP 2: Gemini Text Generation (If Groq Succeeded)
-  if (visionResult) {
-    let terminalLog = String(visionResult.raw_visual_description || `Action ${visionResult.action_verified ? 'verified' : 'rejected'} based on visual evidence.`);
-    
-    const textPrompt = `You are a robotic terminal analyzer for EcoPulse. An AI vision model analyzed a "${actionType}" claim.
-Status: ${visionResult.action_verified ? 'VERIFIED' : 'REJECTED'}.
-Visual evidence detected: "${visionResult.raw_visual_description}".
-Generate a detailed, multi-sentence robotic-sounding terminal analysis (3-4 sentences) explaining exactly what was detected to justify the conclusion. Return ONLY the plain text log, no markdown.`;
-
-    for (let k = 0; k < API_KEYS.length; k++) {
-      try {
-        const apiKey = getNextApiKey();
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: textPrompt }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 200 }
-          }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const generatedLog = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (generatedLog) {
-            terminalLog = generatedLog.trim();
-            break; // Success
-          }
-        }
-      } catch (e) {
-        // Silently fail and use the raw_visual_description fallback
-      }
-    }
-
-    return {
-      action_verified: Boolean(visionResult.action_verified),
-      confidence_score: Math.min(1, Math.max(0, Number(visionResult.confidence_score) || 0)),
-      co2_delta_kg: Math.max(0, Number(visionResult.co2_delta_kg) || 0),
-      eco_points: Math.max(0, Math.min(100, Math.round(Number(visionResult.eco_points) || 0))),
-      terminal_log: terminalLog,
-    };
-  }
-
-  console.warn("All AI APIs failed. Falling back to local offline simulation.", lastError);
-  return {
-    action_verified: true,
-    confidence_score: 0.95,
-    co2_delta_kg: Math.random() * 2 + 0.5,
-    eco_points: Math.floor(Math.random() * 30) + 10,
-    terminal_log: "OFFLINE FALLBACK:: Simulated verification due to API restrictions."
-  };
+  return await res.json();
 }
 
 // ==========================================
