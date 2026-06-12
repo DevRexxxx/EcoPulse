@@ -25,6 +25,8 @@ vi.mock('firebase/firestore', () => ({
   Timestamp: { now: vi.fn() },
   increment: vi.fn(),
   serverTimestamp: vi.fn(),
+  getAggregateFromServer: vi.fn(),
+  sum: vi.fn(),
 }));
 
 vi.mock('./mock/emissionsCalculator', () => ({
@@ -68,13 +70,10 @@ describe('Firestore Gamification & Points', () => {
   });
 
   it('getTotalPoints should aggregate ledger entries', async () => {
-    // Override getDocs mock to return ledger entries
-    const { getDocs } = await import('firebase/firestore');
-    (getDocs as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      docs: [
-        { data: () => ({ delta: 100 }) },
-        { data: () => ({ delta: 50 }) }
-      ]
+    // Override getAggregateFromServer mock to return aggregated points
+    const { getAggregateFromServer } = await import('firebase/firestore');
+    (getAggregateFromServer as any).mockResolvedValueOnce({
+      data: () => ({ total: 150 })
     });
 
     const total = await gamificationService.getTotalPoints(mockUid);
@@ -94,19 +93,19 @@ describe('Firestore Gamification & Points', () => {
   });
 
   it('deductPoints should fail if user has insufficient points', async () => {
-    // Mock getDocs to return an empty array (0 points)
-    const { getDocs } = await import('firebase/firestore');
-    (getDocs as any).mockResolvedValueOnce({ docs: [] });
+    // Mock getAggregateFromServer to return 0 points
+    const { getAggregateFromServer } = await import('firebase/firestore');
+    (getAggregateFromServer as any).mockResolvedValueOnce({ data: () => ({ total: 0 }) });
 
     const success = await gamificationService.deductPoints(mockUid, 100, 'Test deduction');
     expect(success).toBe(false);
   });
 
   it('redeemReward should deduct points and log redemption if successful', async () => {
-    // Mock getDocs to return enough points
-    const { getDocs, addDoc } = await import('firebase/firestore');
-    (getDocs as any).mockResolvedValueOnce({
-      docs: [{ data: () => ({ delta: 200 }) }]
+    // Mock getAggregateFromServer to return enough points
+    const { getAggregateFromServer, addDoc } = await import('firebase/firestore');
+    (getAggregateFromServer as any).mockResolvedValueOnce({
+      data: () => ({ total: 200 })
     });
 
     const success = await gamificationService.redeemReward(mockUid, 'reward-1', 100);
