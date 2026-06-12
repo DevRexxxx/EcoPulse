@@ -164,6 +164,7 @@ users/
 - Node.js 18+
 - A [Firebase Project](https://console.firebase.google.com/)
 - A [Gemini API key](https://aistudio.google.com/app/apikey)
+- A [Groq API key](https://console.groq.com/keys) (For Llama 4 Scout Vision)
 
 ### 1. Clone and Install
 ```bash
@@ -183,6 +184,8 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
+# AI Architecture Keys
+NEXT_PUBLIC_GROQ_API_KEY=your_groq_key
 # Gemini API Keys (Comma-separated for automated round-robin rotation)
 NEXT_PUBLIC_GEMINI_API_KEYS=key1,key2,key3
 ```
