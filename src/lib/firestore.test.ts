@@ -4,6 +4,7 @@ import { db } from './firebase';
 
 // Mock the external dependencies
 vi.mock('firebase/firestore', () => ({
+  getFirestore: vi.fn(),
   doc: vi.fn(),
   setDoc: vi.fn(),
   getDoc: vi.fn(),
