@@ -161,7 +161,7 @@ users/
     badges/           → badge_id, earned_at
 ```
 
-**Optimized Aggregation:** The Profile page utilizes `@tanstack/react-query` to pull from these subcollections instantly. `stale-while-revalidate` caching ensures that when a user completes an AI action and returns to their profile, the UI updates instantly without blocking loaders.
+**Optimized Aggregation:** The Profile page utilizes `@tanstack/react-query` to pull from these subcollections. We use Firestore's native `getAggregateFromServer` with `sum('delta')` to compute users' total EcoPoints server-side with zero document reads overhead, drastically reducing Firebase read costs. `stale-while-revalidate` caching ensures that when a user completes an AI action and returns to their profile, the UI updates instantly without blocking loaders.
 
 ---
 
