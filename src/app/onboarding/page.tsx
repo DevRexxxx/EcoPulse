@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/store/userStore';
-import { saveBaseline } from '@/lib/firestore';
+import { saveBaseline } from '@/services/userService';
 import type { Baseline, QuizQuestion } from '@/types';
 
 const QUIZ_QUESTIONS: QuizQuestion[] = [

@@ -18,7 +18,7 @@ CRITICAL: Return ONLY a valid JSON object. No markdown, no backticks. Format:
     const geminiKeysStr = process.env.GEMINI_API_KEYS || '';
     const API_KEYS = geminiKeysStr.split(',').filter(Boolean);
 
-    let visionResult: any = null;
+    let visionResult: { action_verified?: boolean; confidence_score?: number; co2_delta_kg?: number; eco_points?: number; raw_visual_description?: string } | null = null;
     let lastError: Error | null = null;
 
     // STEP 1: Groq Vision Processing
@@ -59,8 +59,8 @@ CRITICAL: Return ONLY a valid JSON object. No markdown, no backticks. Format:
           console.error("Groq vision failure:", errBody);
           lastError = new Error(`Groq API error ${groqRes.status}: ${errBody}`);
         }
-      } catch (err: any) {
-        lastError = err;
+      } catch (err: unknown) {
+        lastError = err instanceof Error ? err : new Error(String(err));
       }
     }
 
@@ -116,7 +116,7 @@ Generate a detailed, multi-sentence robotic-sounding terminal analysis (3-4 sent
       terminal_log: terminalLog,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("API error:", error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

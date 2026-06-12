@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/store/userStore';
-import { logCompletedAction } from '@/lib/firestore';
+import { logCompletedAction } from '@/services/gamificationService';
 
 export default function ReportPage() {
   const router = useRouter();

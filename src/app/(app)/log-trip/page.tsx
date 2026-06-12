@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/store/userStore';
-import { logTrip } from '@/lib/firestore';
+import { logTrip } from '@/services/tripService';
 import { TRANSPORT_LABELS, calculateEmissions, getCo2Saved } from '@/lib/mock/emissionsCalculator';
 import type { TransportMode } from '@/types';
 

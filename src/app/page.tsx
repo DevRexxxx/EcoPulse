@@ -5,7 +5,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useUserStore } from '@/store/userStore';
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading, user } = useUserStore();
+  const isAuthenticated = useUserStore((state) => state.isAuthenticated);
+  const isLoading = useUserStore((state) => state.isLoading);
+  const user = useUserStore((state) => state.user);
   const router = useRouter();
   const pathname = usePathname();
 

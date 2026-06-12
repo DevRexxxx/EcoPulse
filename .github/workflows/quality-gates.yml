@@ -34,8 +34,8 @@ jobs:
     - name: Lint Codebase (Security & Style)
       run: npm run lint
 
-    # - name: Dependency Vulnerability Scan
-    #   run: npm audit --audit-level=high
+    - name: Build Application
+      run: npm run build
 
     - name: Unit & Integration Tests (Vitest)
       run: npx vitest run --coverage

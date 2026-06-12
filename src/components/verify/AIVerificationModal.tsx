@@ -217,7 +217,7 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
         onClose(); // close the modal after pushing
       }, 1200);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       clearInterval(logInterval);
       setTerminalLogs((prev) => [
         ...prev,

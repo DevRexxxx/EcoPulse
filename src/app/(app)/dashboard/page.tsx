@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useUserStore } from '@/store/userStore';
-import { getEmissionsHistory } from '@/lib/firestore';
+import { getEmissionsHistory } from '@/services/tripService';
 import dynamic from 'next/dynamic';
 import type { EmissionDataPoint } from '@/types';
 

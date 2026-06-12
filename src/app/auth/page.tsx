@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent, MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { signUpWithEmail, signInWithEmail, signInWithGoogle } from '@/lib/auth';
-import { createUserProfile } from '@/lib/firestore';
+import { createUserProfile } from '@/services/userService';
 import { useUserStore } from '@/store/userStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -47,14 +47,15 @@ export default function AuthPage() {
       } else {
         await signInWithEmail(email, password);
       }
-    } catch (err: any) {
-      const code = err?.code || '';
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string };
+      const code = e?.code || '';
       if (code === 'auth/user-not-found') setError('No account found with this email');
       else if (code === 'auth/wrong-password') setError('Incorrect password');
-      else if (code === 'auth/email-already-in-use') setError('Email already registered');
-      else if (code === 'auth/weak-password') setError('Password must be at least 6 characters');
-      else if (code === 'auth/invalid-email') setError('Invalid email address');
-      else setError(err?.message || 'Something went wrong');
+      else if (code === 'auth/email-already-in-use') setError('An account already exists with this email');
+      else if (code === 'auth/weak-password') setError('Password should be at least 6 characters');
+      else if (code === 'auth/invalid-email') setError('Please enter a valid email');
+      else setError(e?.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -65,9 +66,10 @@ export default function AuthPage() {
     setLoading(true);
     try {
       await signInWithGoogle();
-    } catch (err: any) {
-      if (err?.code !== 'auth/popup-closed-by-user') {
-        setError(err?.message || 'Google sign-in failed');
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string };
+      if (e?.code !== 'auth/popup-closed-by-user') {
+        setError(e?.message || 'Google sign-in failed');
       }
     } finally {
       setLoading(false);

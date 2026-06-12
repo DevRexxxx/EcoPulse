@@ -2,7 +2,8 @@
 
 import { useEffect, useState, ReactNode } from 'react';
 import { onAuthChange } from '@/lib/auth';
-import { getUserProfile, getTotalPoints, getStreak, getBaseline } from '@/lib/firestore';
+import { getUserProfile, getBaseline } from '@/services/userService';
+import { getTotalPoints, getStreak } from '@/services/gamificationService';
 import { useUserStore } from '@/store/userStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -24,7 +25,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         let profile = await getUserProfile(firebaseUser.uid);
         if (!profile) {
           // New user from Google sign-in — create profile
-          const { createUserProfile } = await import('@/lib/firestore');
+          const { createUserProfile } = await import('@/services/userService');
           profile = await createUserProfile(
             firebaseUser.uid,
             firebaseUser.email || '',

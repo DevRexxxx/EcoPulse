@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
 // Lazy-load the heatmap to prevent SSR issues with Leaflet
-// @ts-ignore - Module exists, TS just can't resolve types for dynamic() imports
+// Heatmap is dynamically loaded to prevent SSR issues with Leaflet
 const HeatmapMap = dynamic(() => import('./HeatmapMap'), {
   ssr: false,
   loading: () => <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', color: 'rgba(255,255,255,0.4)' }}>Loading heatmap...</div>,
@@ -139,8 +139,9 @@ export default function SensorsPanel({ isOpen, onClose }: SensorsPanelProps) {
         isDay: current.is_day === 1,
       });
       setLastUpdated(new Date());
-    } catch (err: any) {
-      if (err?.code === 1) {
+    } catch (err: unknown) {
+      const e = err as { code?: number };
+      if (e?.code === 1) {
         setError('Location access denied. Please allow location permissions.');
       } else {
         setError('Failed to fetch environmental data. Check your connection.');

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/store/userStore';
 import { generateSuggestions } from '@/lib/mock/actionEngine';
-import { awardPoints, logCompletedAction } from '@/lib/firestore';
+import { awardPoints, logCompletedAction } from '@/services/gamificationService';
 import dynamic from 'next/dynamic';
 import type { ActionSuggestion } from '@/types';
 

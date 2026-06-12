@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from 'recharts';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import type { EmissionDataPoint } from '@/types';
 
 interface CarbonGraphProps {
@@ -25,7 +26,7 @@ export default function CarbonGraph({ data, loading }: CarbonGraphProps) {
 
   const hasData = filteredData.some((d) => d.co2eKg > 0);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
     if (active && payload && payload.length) {
       return (
         <div

@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as firestoreModule from './firestore';
+import * as userService from '../services/userService';
+import * as tripService from '../services/tripService';
+import * as gamificationService from '../services/gamificationService';
 import { db } from './firebase';
 
 // Mock the external dependencies
@@ -36,7 +38,7 @@ describe('Firestore User Operations', () => {
 
   it('createUserProfile should initialize user and streak', async () => {
     const mockUid = 'user-123';
-    const profile = await firestoreModule.createUserProfile(mockUid, 'test@eco.com', 'Tester');
+    const profile = await userService.createUserProfile(mockUid, 'test@eco.com', 'Tester');
     
     expect(profile.uid).toBe(mockUid);
     expect(profile.onboardingComplete).toBe(false);
@@ -50,7 +52,7 @@ describe('Firestore User Operations', () => {
     const mockUid = 'user-123';
     const mockBaseline = { dietType: 'vegan', transitPref: 'bike' };
     
-    await firestoreModule.saveBaseline(mockUid, mockBaseline);
+    await userService.saveBaseline(mockUid, mockBaseline);
     
     const { setDoc, updateDoc } = await import('firebase/firestore');
     expect(setDoc).toHaveBeenCalled();
@@ -75,12 +77,12 @@ describe('Firestore Gamification & Points', () => {
       ]
     });
 
-    const total = await firestoreModule.getTotalPoints(mockUid);
+    const total = await gamificationService.getTotalPoints(mockUid);
     expect(total).toBe(150);
   });
 
   it('logTrip should calculate emissions and award points for green modes', async () => {
-    const trip = await firestoreModule.logTrip(mockUid, 'bike', 10);
+    const trip = await tripService.logTrip(mockUid, 'bike', 10);
     
     expect(trip.mode).toBe('bike');
     expect(trip.distanceKm).toBe(10);
@@ -96,7 +98,7 @@ describe('Firestore Gamification & Points', () => {
     const { getDocs } = await import('firebase/firestore');
     (getDocs as any).mockResolvedValueOnce({ docs: [] });
 
-    const success = await firestoreModule.deductPoints(mockUid, 100, 'Test deduction');
+    const success = await gamificationService.deductPoints(mockUid, 100, 'Test deduction');
     expect(success).toBe(false);
   });
 
@@ -107,7 +109,7 @@ describe('Firestore Gamification & Points', () => {
       docs: [{ data: () => ({ delta: 200 }) }]
     });
 
-    const success = await firestoreModule.redeemReward(mockUid, 'reward-1', 100);
+    const success = await gamificationService.redeemReward(mockUid, 'reward-1', 100);
     expect(success).toBe(true);
     // 1 for awardPoints (negative), 1 for redemption log
     expect(addDoc).toHaveBeenCalledTimes(2);

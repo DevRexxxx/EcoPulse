@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/store/userStore';
-import { redeemReward } from '@/lib/firestore';
+import { redeemReward } from '@/services/gamificationService';
 import { REWARDS_DATA } from '@/lib/mock/rewardsData';
 
 export default function RewardsPage() {
