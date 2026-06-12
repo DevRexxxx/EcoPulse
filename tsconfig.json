@@ -18,5 +18,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "vitest.config.ts", "**/*.test.ts", "**/*.test.tsx", "vitest.setup.ts"]
+  "exclude": ["node_modules", "vitest.config.ts", "**/*.test.ts", "**/*.test.tsx", "vitest.setup.ts", "tests/**/*", "**/*.spec.ts", "playwright.config.ts"]
 }

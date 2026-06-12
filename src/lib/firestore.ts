@@ -33,6 +33,20 @@ import { calculateEmissions } from './mock/emissionsCalculator';
 // User Operations
 // ==========================================
 
+/**
+ * Creates a new user profile and initializes their default streak.
+ * @param uid The Firebase Auth user ID
+ * @param email The user's email address
+ * @param displayName The user's public display name
+ * @returns The created UserProfile object
+ */
+/**
+ * Creates a new user profile and initializes their default streak.
+ * @param uid The Firebase Auth user ID
+ * @param email The user's email address
+ * @param displayName The user's public display name
+ * @returns The created UserProfile object
+ */
 export async function createUserProfile(uid: string, email: string, displayName: string) {
   const profile: UserProfile = {
     uid,
@@ -98,6 +112,20 @@ export async function getBaseline(uid: string): Promise<Baseline | null> {
 // Trip Logging & Emissions
 // ==========================================
 
+/**
+ * Logs a new transportation trip, calculates CO2 emissions, and awards points if it's a green commute.
+ * @param uid The Firebase Auth user ID
+ * @param mode The mode of transportation (e.g., 'car', 'bike')
+ * @param distanceKm The distance traveled in kilometers
+ * @returns The created Trip object containing the calculated co2eKg
+ */
+/**
+ * Logs a new transportation trip, calculates CO2 emissions, and awards points if it's a green commute.
+ * @param uid The Firebase Auth user ID
+ * @param mode The mode of transportation (e.g., 'car', 'bike')
+ * @param distanceKm The distance traveled in kilometers
+ * @returns The created Trip object containing the calculated co2eKg
+ */
 export async function logTrip(uid: string, mode: TransportMode, distanceKm: number): Promise<Trip> {
   const co2eKg = calculateEmissions(mode, distanceKm);
   const trip: Omit<Trip, 'id'> = {

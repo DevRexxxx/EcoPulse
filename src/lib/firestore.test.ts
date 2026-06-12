@@ -1,0 +1,111 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import * as firestoreModule from './firestore';
+import { db } from './firebase';
+
+// Mock the external dependencies
+vi.mock('firebase/firestore', () => ({
+  doc: vi.fn(),
+  setDoc: vi.fn(),
+  getDoc: vi.fn(),
+  getDocs: vi.fn(),
+  addDoc: vi.fn().mockResolvedValue({ id: 'mock-doc-id' }),
+  updateDoc: vi.fn(),
+  deleteDoc: vi.fn(),
+  collection: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  orderBy: vi.fn(),
+  limit: vi.fn(),
+  Timestamp: { now: vi.fn() },
+  increment: vi.fn(),
+  serverTimestamp: vi.fn(),
+}));
+
+vi.mock('./mock/emissionsCalculator', () => ({
+  calculateEmissions: vi.fn().mockReturnValue(2.5),
+}));
+
+describe('Firestore User Operations', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('createUserProfile should initialize user and streak', async () => {
+    const mockUid = 'user-123';
+    const profile = await firestoreModule.createUserProfile(mockUid, 'test@eco.com', 'Tester');
+    
+    expect(profile.uid).toBe(mockUid);
+    expect(profile.onboardingComplete).toBe(false);
+
+    // Verify setDoc was called twice (profile + streak)
+    const { setDoc } = await import('firebase/firestore');
+    expect(setDoc).toHaveBeenCalledTimes(2);
+  });
+
+  it('saveBaseline should update onboarding status', async () => {
+    const mockUid = 'user-123';
+    const mockBaseline = { dietType: 'vegan', transitPref: 'bike' };
+    
+    await firestoreModule.saveBaseline(mockUid, mockBaseline);
+    
+    const { setDoc, updateDoc } = await import('firebase/firestore');
+    expect(setDoc).toHaveBeenCalled();
+    expect(updateDoc).toHaveBeenCalled();
+  });
+});
+
+describe('Firestore Gamification & Points', () => {
+  const mockUid = 'user-123';
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('getTotalPoints should aggregate ledger entries', async () => {
+    // Override getDocs mock to return ledger entries
+    const { getDocs } = await import('firebase/firestore');
+    (getDocs as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      docs: [
+        { data: () => ({ delta: 100 }) },
+        { data: () => ({ delta: 50 }) }
+      ]
+    });
+
+    const total = await firestoreModule.getTotalPoints(mockUid);
+    expect(total).toBe(150);
+  });
+
+  it('logTrip should calculate emissions and award points for green modes', async () => {
+    const trip = await firestoreModule.logTrip(mockUid, 'bike', 10);
+    
+    expect(trip.mode).toBe('bike');
+    expect(trip.distanceKm).toBe(10);
+    expect(trip.co2eKg).toBe(2.5); // mocked return value
+    
+    const { addDoc } = await import('firebase/firestore');
+    // Once for the trip, once for the points ledger
+    expect(addDoc).toHaveBeenCalledTimes(2);
+  });
+
+  it('deductPoints should fail if user has insufficient points', async () => {
+    // Mock getDocs to return an empty array (0 points)
+    const { getDocs } = await import('firebase/firestore');
+    (getDocs as any).mockResolvedValueOnce({ docs: [] });
+
+    const success = await firestoreModule.deductPoints(mockUid, 100, 'Test deduction');
+    expect(success).toBe(false);
+  });
+
+  it('redeemReward should deduct points and log redemption if successful', async () => {
+    // Mock getDocs to return enough points
+    const { getDocs, addDoc } = await import('firebase/firestore');
+    (getDocs as any).mockResolvedValueOnce({
+      docs: [{ data: () => ({ delta: 200 }) }]
+    });
+
+    const success = await firestoreModule.redeemReward(mockUid, 'reward-1', 100);
+    expect(success).toBe(true);
+    // 1 for awardPoints (negative), 1 for redemption log
+    expect(addDoc).toHaveBeenCalledTimes(2);
+  });
+});
