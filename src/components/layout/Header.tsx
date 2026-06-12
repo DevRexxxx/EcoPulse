@@ -58,46 +58,6 @@ export default function Header() {
           </div>
         </div>
 
-        <style jsx>{`
-          @media (max-width: 768px) {
-            header {
-              left: 0 !important;
-              padding: 0 12px !important;
-            }
-            .cc-header-title {
-              display: none !important;
-            }
-            .cc-header-brand-mobile {
-              display: flex !important;
-            }
-          }
-          .cc-header-brand-mobile {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-          }
-          .cc-header-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(0, 242, 166, 0.15);
-            color: #00F2A6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border: 1px solid rgba(0, 242, 166, 0.3);
-          }
-          .cc-header-logo-text {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.2rem;
-            color: #fff;
-            letter-spacing: -0.02em;
-          }
-        `}</style>
       </header>
 
       {/* Sensors Panel */}

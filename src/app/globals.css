@@ -2074,6 +2074,12 @@ h4 { font-size: 1rem; }
   z-index: 99;
 }
 
+.cc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .cc-header-title {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.85rem;
@@ -2081,6 +2087,54 @@ h4 { font-size: 1rem; }
   letter-spacing: -0.02em;
   color: rgba(212, 228, 250, 0.55);
 }
+
+.cc-header-brand-mobile {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.cc-header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 242, 166, 0.15);
+  color: #00F2A6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: 1px solid rgba(0, 242, 166, 0.3);
+}
+
+.cc-header-logo-text {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* Tablet & Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .cc-header-title { font-size: 1.4rem; }
+}
+
+@media (max-width: 768px) {
+  .cc-header {
+    left: 0 !important;
+    padding: 0 16px !important;
+  }
+  .cc-header-title {
+    display: none !important;
+  }
+  .cc-header-brand-mobile {
+    display: flex !important;
+  }
+}
+
 
 .cc-header-right {
   display: flex;
