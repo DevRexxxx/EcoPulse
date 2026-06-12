@@ -24,6 +24,13 @@ export default function Header() {
     <>
       <header className="cc-header">
         <div className="cc-header-left">
+          {/* Show Logo on Mobile (desktop shows Command Center) */}
+          <Link href="/dashboard" className="cc-header-brand-mobile">
+            <div className="cc-header-avatar">
+              {user?.displayName ? user.displayName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) : '?'}
+            </div>
+            <span className="cc-header-logo-text">EcoPulse</span>
+          </Link>
           <h1 className="cc-header-title">Command Center</h1>
         </div>
 
@@ -55,11 +62,40 @@ export default function Header() {
           @media (max-width: 768px) {
             header {
               left: 0 !important;
-              padding: 0 16px !important;
+              padding: 0 12px !important;
             }
-            .cc-search {
+            .cc-header-title {
               display: none !important;
             }
+            .cc-header-brand-mobile {
+              display: flex !important;
+            }
+          }
+          .cc-header-brand-mobile {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+          }
+          .cc-header-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0, 242, 166, 0.15);
+            color: #00F2A6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid rgba(0, 242, 166, 0.3);
+          }
+          .cc-header-logo-text {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #fff;
+            letter-spacing: -0.02em;
           }
         `}</style>
       </header>

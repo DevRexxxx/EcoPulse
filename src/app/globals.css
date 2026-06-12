@@ -610,6 +610,7 @@ h4 { font-size: 1rem; }
   }
 }
 
+
 /* ==========================================
    Modal / Overlay
    ========================================== */
@@ -633,7 +634,16 @@ h4 { font-size: 1rem; }
   padding: 32px;
   max-width: 480px;
   width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
   animation: fadeInUp 0.3s var(--ease-spring);
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 20px;
+    margin: 16px;
+  }
 }
 
 .modal-content h3 {
@@ -713,8 +723,8 @@ h4 { font-size: 1rem; }
   position: absolute;
   top: -200px;
   left: -200px;
-  width: 600px;
-  height: 600px;
+  width: min(600px, 100vw);
+  height: min(600px, 100vw);
   background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
   pointer-events: none;
 }
@@ -724,15 +734,15 @@ h4 { font-size: 1rem; }
   position: absolute;
   bottom: -200px;
   right: -200px;
-  width: 500px;
-  height: 500px;
+  width: min(500px, 100vw);
+  height: min(500px, 100vw);
   background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 440px;
+  max-width: min(440px, 90vw);
   position: relative;
   z-index: 1;
 }
@@ -1277,6 +1287,123 @@ h4 { font-size: 1rem; }
 .badge-card.locked {
   opacity: 0.5;
   filter: grayscale(0.8);
+}
+
+.cc-header-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cc-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(212, 228, 250, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.cc-icon-btn:hover {
+  background: rgba(0, 255, 200, 0.08);
+  color: #00ffc8;
+  border-color: rgba(0, 255, 200, 0.3);
+  box-shadow: 0 0 15px rgba(0, 255, 200, 0.2), inset 0 0 10px rgba(0, 255, 200, 0.1);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.cc-icon-btn.cc-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.cc-icon-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00F2A6;
+  box-shadow: 0 0 6px rgba(0, 242, 166, 0.5);
+}
+
+/* —— Bento Grid Layout —— */
+.cc-bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 340px;
+  grid-template-rows: auto auto auto;
+  gap: 16px;
+  max-width: 1400px;
+}
+
+@media (min-width: 769px) {
+  .cc-bento-grid.report-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cc-hero-card { grid-column: 1 / 3; grid-row: 1; }
+.cc-sector-card { grid-column: 3; grid-row: 1 / 3; }
+.cc-stat-credits { grid-column: 1; grid-row: 2; }
+.cc-stat-streak { grid-column: 2; grid-row: 2; }
+.cc-diag-card { grid-column: 1 / 3; grid-row: 3; }
+.cc-chart-card { grid-column: 1 / -1; grid-row: 4; }
+.cc-devices-card { grid-column: 1 / -1; grid-row: 5; }
+
+/* —— Bento Card Base (Glassmorphism) —— */
+.cc-bento-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 16px;
+  padding: 24px;
+  overflow: hidden;
+  /* Directional light border — top-left brighter */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  border-right: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.cc-card-label {
+  font-family: 'Geist Mono', 'SF Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(185, 203, 190, 0.6);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.cc-card-sublabel {
+  font-size: 0.78rem;
+  color: rgba(185, 203, 190, 0.35);
+  margin-bottom: 20px;
+}
+
+/* —— Hero Card —— */
+.cc-hero-card {
+  min-height: 220px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.cc-hero-chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
 }
 
 .badge-card .badge-icon {
@@ -2186,7 +2313,7 @@ h4 { font-size: 1rem; }
   font-weight: 600;
   margin-top: 12px;
 }
-/* Notification Dropdown */
+/* Notification Dropdown */
 .cc-notif-wrapper {
   position: relative;
 }
@@ -2336,116 +2463,6 @@ h4 { font-size: 1rem; }
 .cc-notif-delete-btn:hover {
   color: #f87171;
   background: rgba(248, 113, 113, 0.1);
-}
-
-.cc-header-icons {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.cc-icon-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: rgba(212, 228, 250, 0.5);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
-
-.cc-icon-btn:hover {
-  background: rgba(0, 255, 200, 0.08);
-  color: #00ffc8;
-  border-color: rgba(0, 255, 200, 0.3);
-  box-shadow: 0 0 15px rgba(0, 255, 200, 0.2), inset 0 0 10px rgba(0, 255, 200, 0.1);
-  transform: translateY(-2px) scale(1.05);
-}
-
-.cc-icon-btn.cc-logout:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.2);
-}
-
-.cc-icon-dot {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #00F2A6;
-  box-shadow: 0 0 6px rgba(0, 242, 166, 0.5);
-}
-
-/* —— Bento Grid Layout —— */
-.cc-bento-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 340px;
-  grid-template-rows: auto auto auto;
-  gap: 16px;
-  max-width: 1400px;
-}
-
-.cc-hero-card { grid-column: 1 / 3; grid-row: 1; }
-.cc-sector-card { grid-column: 3; grid-row: 1 / 3; }
-.cc-stat-card:nth-of-type(3) { grid-column: 1; grid-row: 2; }
-.cc-stat-card:nth-of-type(4) { grid-column: 2; grid-row: 2; }
-.cc-diag-card { grid-column: 1 / 3; grid-row: 3; }
-.cc-chart-card { grid-column: 1 / -1; grid-row: 4; }
-
-/* —— Bento Card Base (Glassmorphism) —— */
-.cc-bento-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-radius: 16px;
-  padding: 24px;
-  overflow: hidden;
-  /* Directional light border — top-left brighter */
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-  border-right: 1px solid rgba(255, 255, 255, 0.02);
-}
-
-.cc-card-label {
-  font-family: 'Geist Mono', 'SF Mono', monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: rgba(185, 203, 190, 0.6);
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.cc-card-sublabel {
-  font-size: 0.78rem;
-  color: rgba(185, 203, 190, 0.35);
-  margin-bottom: 20px;
-}
-
-/* —— Hero Card —— */
-.cc-hero-card {
-  min-height: 220px;
-  display: flex;
-  align-items: flex-end;
-}
-
-.cc-hero-chart {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.5;
 }
 
 .cc-hero-content {
@@ -2694,23 +2711,21 @@ h4 { font-size: 1rem; }
   }
   .cc-hero-card { grid-column: 1 / -1; grid-row: 1; }
   .cc-sector-card { grid-column: 1 / -1; grid-row: auto; }
-  .cc-stat-card:nth-of-type(3) { grid-column: 1; }
-  .cc-stat-card:nth-of-type(4) { grid-column: 2; }
+  .cc-stat-credits { grid-column: 1; }
+  .cc-stat-streak { grid-column: 2; }
   .cc-diag-card { grid-column: 1 / -1; }
   .cc-chart-card { grid-column: 1 / -1; }
+  .cc-devices-card { grid-column: 1 / -1; }
 }
 
 @media (max-width: 768px) {
+  .cc-search-wrapper { display: none !important; }
   .cc-bento-grid {
     grid-template-columns: 1fr;
   }
-  .cc-hero-card,
-  .cc-sector-card,
-  .cc-stat-card:nth-of-type(3),
-  .cc-stat-card:nth-of-type(4),
-  .cc-diag-card,
-  .cc-chart-card {
-    grid-column: 1;
+  .cc-bento-grid > div {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
   }
   .cc-hero-value { font-size: 2.6rem; }
   .cc-stat-value { font-size: 1.8rem; }
@@ -2733,7 +2748,8 @@ h4 { font-size: 1rem; }
   position: fixed;
   top: 0;
   right: 0;
-  width: 460px;
+  width: 100%;
+  max-width: 460px;
   height: 100vh;
   background: rgba(10, 18, 16, 0.95);
   backdrop-filter: blur(20px);

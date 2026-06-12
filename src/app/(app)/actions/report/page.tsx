@@ -151,7 +151,7 @@ export default function ReportPage() {
           </p>
         </div>
 
-        <div className="cc-bento-grid" style={{ gridTemplateColumns: '1fr 1fr' }} role="region" aria-label="Verification Results Overview">
+        <div className="cc-bento-grid report-grid" role="region" aria-label="Verification Results Overview">
           
           {/* Left Column: Proof Image */}
           <div className="cc-bento-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(0,255,200,0.2)' }}>

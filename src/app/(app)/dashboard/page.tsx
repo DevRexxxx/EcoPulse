@@ -142,11 +142,11 @@ export default function DashboardPage() {
 
       {/* ========== CONNECTED DEVICES WIDGET ========== */}
       <motion.div
+        className="cc-devices-card"
         custom={1}
         initial="hidden"
         animate="visible"
         variants={cardVariants}
-        style={{ gridColumn: 'span 12' }}
       >
         <ConnectedDevicesWidget />
       </motion.div>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
 
       {/* ========== ACCUMULATED CREDITS ========== */}
       <motion.div
-        className="cc-bento-card cc-stat-card"
+        className="cc-bento-card cc-stat-card cc-stat-credits"
         custom={2}
         initial="hidden"
         animate="visible"
@@ -207,7 +207,7 @@ export default function DashboardPage() {
 
       {/* ========== UPTIME STREAK ========== */}
       <motion.div
-        className="cc-bento-card cc-stat-card"
+        className="cc-bento-card cc-stat-card cc-stat-streak"
         custom={3}
         initial="hidden"
         animate="visible"
