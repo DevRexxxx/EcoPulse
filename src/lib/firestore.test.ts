@@ -7,7 +7,10 @@ vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(),
   doc: vi.fn(),
   setDoc: vi.fn(),
-  getDoc: vi.fn(),
+  getDoc: vi.fn().mockResolvedValue({
+    exists: () => false,
+    data: () => ({}),
+  }),
   getDocs: vi.fn(),
   addDoc: vi.fn().mockResolvedValue({ id: 'mock-doc-id' }),
   updateDoc: vi.fn(),
