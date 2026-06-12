@@ -221,7 +221,7 @@ export default function AIVerificationModal({ isOpen, onClose, onClaimPoints }: 
       clearInterval(logInterval);
       setTerminalLogs((prev) => [
         ...prev,
-        `> ERR::AI — ${err.message || 'Verification failed.'}`,
+        `> ERR::AI — ${err instanceof Error ? err.message : 'Verification failed.'}`,
         '> STATUS::ABORTED — Retry scan.',
       ]);
     } finally {
